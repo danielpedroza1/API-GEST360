@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" href="/front-end/css/login.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="left">
+        <h1>Bem Vindo <br> Gestão <br> 360</h1>
+    </div>
+
+    <div class="right">
+        <h2>LOGIN</h2>
+
+        <div class="icon">👤</div>
+
+        <input id="email" type="email" placeholder="Digite seu email">
+        <input id="senha" type="password" placeholder="Digite sua senha">
+
+        <div class="links">
+            <a href="#">Esqueceu sua senha?</a>
+            <a href="../cadFunc/cadFunc.html">Não tem conta? Cadastre-se</a>
+        </div>
+
+        <button id="btnLogin">Acessar</button>
+
+        <p id="msg"></p>
+    </div>
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => { // garante que os elementos existem
+  document.getElementById("btnLogin").addEventListener("click", async () => {
+      const email = document.getElementById("email").value.trim();
+      const senha = document.getElementById("senha").value.trim();
+      const msg = document.getElementById("msg");
+      msg.innerText = "";
+      msg.style.color = "red"; // default vermelho para erros
+
+      if (!email || !senha) {
+          msg.innerText = "Preencha todos os campos";
+          return;
+      }
+
+      try {
+          const res = await fetch("http://localhost:3000/auth/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              // Se você não estiver usando cookies no backend, pode r  emover credentials
+              body: JSON.stringify({ email, senha })
+          });
+
+          const data = await res.json();
+          const usuario = localStorage.setItem('usuario', JSON.stringify(data))
+
+          if (res.ok) {
+              msg.style.color = "green";
+              msg.innerText = "Login realizado!";
+              setTimeout(() => {
+                  window.location.href = "/front-end/pages/home.html";
+              }, 1000);
+          } else {
+              msg.innerText = data.erro || "Erro desconhecido";
+          }
+
+      } catch (err) {
+          msg.innerText = "Erro ao conectar com servidor";
+          console.error(err);
+      }
+  });
+});
+</script>

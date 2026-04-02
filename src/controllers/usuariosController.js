@@ -67,13 +67,12 @@ export const criarUsuario = async (req, res) => {
     const hash = await bcrypt.hash(senha, 10);
 
     await db.query(
-      "INSERT INTO usuarios (nome, email, senha, tipo, empresa_id) VALUES (?, ?, ?, ?, ?)",
+      "INSERT INTO usuarios (nome, email, senha, tipo) VALUES (?, ?, ?, ?)",
       [
         nome,
         email,
         hash,
-        tipo || "funcionario",
-        req.session.usuario.empresa_id
+        tipo,
       ]
     );
 

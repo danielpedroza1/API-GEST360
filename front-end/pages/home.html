@@ -1,0 +1,102 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+
+    <link rel="stylesheet" href="/front-end/css/home.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="top-icons">
+        <i onclick="history.back()" class="fa-solid fa-arrow-left"></i>
+
+        <div class="user">
+            <a href="/pages/editPerfil.html">
+                <i class="fa-regular fa-user"></i>
+            </a>
+            <button id="logout">Sair do Perfil</button>
+        </div>
+    </div>
+
+    <div class="box">
+
+        <h1>ESCOLHA ONDE NAVEGAR</h1>
+
+        <div class="buttons">
+
+            <a href="listaProd.html">
+                <div class="btn">
+                    <p>Lista de Produtos</p>
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+            </a>
+
+            <a id="btnAdmin" href="/front-end/pages/cadFunc.html">
+                <div class="btn btn-cadastro-funcionario">
+                    <p>Cadastro de funcionário</p>
+                    <i class="fa-solid fa-clipboard-list"></i>
+                </div>
+            </a>
+
+            <a href="cadProd.html">
+                <div class="btn">
+                    <p>Cadastro de Produtos</p>
+                    <i class="fa-solid fa-plus"></i>
+                </div>
+            </a>
+
+            <a href="Sistemadeped.html">
+                <div class="btn">
+                    <p>Sistema de Pedidos</p>
+                    <i class="fa-solid fa-file-circle-plus"></i>
+                </div>
+            </a>
+
+        </div>
+    </div>
+</div>
+
+<script>
+
+// 🔥 pegar usuário salvo
+const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+// 🔒 se não estiver logado
+if (!usuario) {
+    window.location.href = "/front-end/index.html";
+}
+
+console.log("Usuário logado:", usuario.usuario.tipo);
+
+// 🔹 controlar acesso ao botão de admin
+const btnAdmin = document.querySelector(".btn-cadastro-funcionario");
+btnAdmin.addEventListener("click", (e) => {
+    
+    if (usuario.usuario.tipo !== "admin") {
+        e.preventDefault(); // impede navegar para cadFunc.html
+        alert("Acesso negado! Apenas Administradores podem acessar esta página.");
+    }
+});
+
+// 🔥 logout
+document.getElementById("logout").addEventListener("click", async () => {
+    await fetch("http://localhost:3000/auth/logout", {
+        method: "POST",
+        credentials: "include"
+    });
+
+    localStorage.removeItem("usuario");
+
+    window.location.href = "/front-end/index.html";
+});
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,283 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedidos</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="/front-end/css/Sistemadeped.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- HEADER -->
+    <div class="header">
+        <i class="fas fa-arrow-left" onclick="history.back()"></i>
+        <h2>SISTEMA DE PEDIDOS</h2>
+        <a href="/front-end/pages/home.html"><i class="fas fa-home icon"></i></a>
+    </div>
+
+    <!-- CADASTRO -->
+    <div class="box section">
+        <h3>CADASTRAR PEDIDO</h3>
+
+        <input type="text" id="cliente" placeholder="Nome do cliente">
+        <input type="date" id="data">
+
+        <div class="order-add-row">
+            <select id="order-product">
+                <option value="">Escolha um Produto</option>
+            </select>
+
+            <input type="number" id="order-qty" min="1" value="1">
+
+            <button class="addprod" type="button" id="btn-add-item">
+                Adicionar Produto
+            </button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Qtd</th>
+                    <th>Preço</th>
+                    <th>Total</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+
+            <tbody id="tabela-itens"></tbody>
+        </table>
+
+        <br>
+        <button class="salvar">Salvar Pedido</button>
+    </div>
+
+    <!-- LISTA -->
+    <div class="box section">
+        <h3>LISTA DE PEDIDOS</h3>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Cliente</th>
+                    <th>Data</th>
+                    <th>Total</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+
+            <tbody id="lista-pedidos"></tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+let produtos = [];
+let itensPedido = [];
+
+// ==========================
+// 🔥 CARREGAR PRODUTOS
+// ==========================
+async function carregarProdutos() {
+    try {
+        const res = await fetch("http://localhost:3000/produtos");
+        produtos = await res.json();
+
+        const select = document.getElementById("order-product");
+        select.innerHTML = '<option value="">Escolha um Produto</option>';
+
+        produtos.forEach(p => {
+            select.innerHTML += `
+                <option value="${p.id}">
+                    ${p.nome} (estoque: ${p.estoque})
+                </option>
+            `;
+        });
+
+    } catch (erro) {
+        console.error("Erro ao carregar produtos:", erro);
+    }
+}
+
+// ==========================
+// 🔥 ADICIONAR ITEM
+// ==========================
+document.getElementById("btn-add-item").addEventListener("click", () => {
+    const produtoId = document.getElementById("order-product").value;
+    const qtd = parseInt(document.getElementById("order-qty").value);
+
+    const produto = produtos.find(p => p.id == produtoId);
+
+    if (!produto || qtd <= 0) {
+        alert("Selecione produto e quantidade válida");
+        return;
+    }
+
+    if (qtd > produto.estoque) {
+        alert("Estoque insuficiente");
+        return;
+    }
+
+    const item = {
+        id: produto.id,
+        nome: produto.nome,
+        preco: produto.preco,
+        qtd: qtd,
+        total: produto.preco * qtd
+    };
+
+    itensPedido.push(item);
+    renderItens();
+});
+
+// ==========================
+// 🔥 RENDER ITENS
+// ==========================
+function renderItens() {
+    const tbody = document.getElementById("tabela-itens");
+    tbody.innerHTML = "";
+
+    itensPedido.forEach((item, index) => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${item.nome}</td>
+                <td>${item.qtd}</td>
+                <td>R$ ${item.preco}</td>
+                <td>R$ ${item.total}</td>
+                <td>
+                    <button onclick="removerItem(${index})">Excluir</button>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+// ==========================
+// 🔥 REMOVER ITEM
+// ==========================
+function removerItem(index) {
+    itensPedido.splice(index, 1);
+    renderItens();
+}
+
+// ==========================
+// 🔥 SALVAR PEDIDO
+// ==========================
+document.querySelector(".salvar").addEventListener("click", async () => {
+    const cliente = document.getElementById("cliente").value;
+
+    if (!cliente || itensPedido.length === 0) {
+        alert("Preencha cliente e adicione produtos");
+        return;
+    }
+
+    try {
+        const res = await fetch("http://localhost:3000/pedidos", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                cliente,
+                itens: itensPedido.map(item => ({
+                    produto_id: item.id,
+                    quantidade: item.qtd
+                }))
+            })
+        });
+
+        const resultado = await res.json();
+        console.log("Pedido salvo:", resultado);
+
+        if (!res.ok) {
+            throw new Error(resultado.erro || "Erro ao salvar pedido");
+        }
+
+        alert("Pedido salvo!");
+
+        // limpa formulário
+        itensPedido = [];
+        document.getElementById("cliente").value = "";
+        document.getElementById("data").value = "";
+        document.getElementById("order-qty").value = 1;
+        document.getElementById("order-product").value = "";
+
+        // atualiza tela
+        renderItens();
+        await carregarPedidos();
+        await carregarProdutos();
+
+    } catch (erro) {
+        console.error("Erro ao salvar:", erro);
+        alert("Erro ao salvar pedido");
+    }
+});
+
+// ==========================
+// 🔥 CARREGAR PEDIDOS
+// ==========================
+async function carregarPedidos() {
+    try {
+        const res = await fetch("http://localhost:3000/pedidos");
+        const pedidos = await res.json();
+
+        console.log("Lista de pedidos:", pedidos);
+
+        const tbody = document.getElementById("lista-pedidos");
+        tbody.innerHTML = "";
+
+        pedidos.forEach(p => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${p.id}</td>
+                    <td>${p.cliente}</td>
+                    <td>${p.data_pedido}</td>
+                    <td>R$ ${p.total}</td>
+                    <td>
+                        <button onclick="excluirPedido(${p.id})">
+                            Excluir
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+
+    } catch (erro) {
+        console.error("Erro ao carregar pedidos:", erro);
+    }
+}
+
+// ==========================
+// 🔥 EXCLUIR PEDIDO
+// ==========================
+async function excluirPedido(id) {
+    try {
+        await fetch(`http://localhost:3000/pedidos/${id}`, {
+            method: "DELETE"
+        });
+
+        await carregarPedidos();
+        await carregarProdutos();
+
+    } catch (erro) {
+        console.error("Erro ao excluir pedido:", erro);
+    }
+}
+
+// ==========================
+// 🔥 INIT
+// ==========================
+carregarProdutos();
+carregarPedidos();
+</script>
+
+</body>
+</html>

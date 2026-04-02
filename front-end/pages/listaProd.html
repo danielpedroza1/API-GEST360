@@ -1,0 +1,102 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Lista de Produtos</title>
+
+  <link rel="stylesheet" href="/front-end/css/listaProd.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <h1>LISTA DE PRODUTOS</h1>
+    <a href="/front-end/pages/home.html"><i class="fas fa-home home"></i></a>
+  </div>
+
+  <div class="box">
+
+    <div class="search">
+      <input id="busca" type="text" placeholder="NOME DO PRODUTO">
+      <i class="fas fa-search icon"></i>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>CÓDIGO</th>
+          <th>NOME</th>
+          <th>PREÇO</th>
+          <th>ESTOQUE</th>
+          <th>CATEGORIA</th>
+          <th>DESCRIÇÃO</th>
+          <th>AÇÃO</th>
+        </tr>
+      </thead>
+
+      <tbody id="tabela-produtos"></tbody>
+    </table>
+
+    <a href="/front-end/pages/cadProd.html">
+      <button class="novo">Cadastrar novo produto</button>
+    </a>
+
+  </div>
+
+</div>
+
+<script>
+
+// 🔥 carregar produtos
+async function carregarProdutos(nome = "") {
+  let url = "http://localhost:3000/produtos";
+
+  if (nome) {
+    url += `?nome=${nome}`;
+  }
+
+  const res = await fetch(url);
+  const produtos = await res.json();
+
+  const tabela = document.getElementById("tabela-produtos");
+  tabela.innerHTML = "";
+
+  produtos.forEach(p => {
+    tabela.innerHTML += `
+      <tr>
+        <td>${p.id}</td>
+        <td>${p.nome}</td>
+        <td>R$ ${p.preco}</td>
+        <td>${p.estoque}</td>
+        <td>${p.categoria || "-"}</td>
+        <td>${p.descricao || "-"}</td>
+        <td>
+          <button onclick="editar(${p.id})">Editar</button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+// 🔥 busca automática
+document.getElementById("busca").addEventListener("input", (e) => {
+  carregarProdutos(e.target.value);
+});
+
+// 🔥 editar produto
+function editar(id) {
+  window.location.href = `/front-end/pages/cadProd.html?id=${id}`;
+}
+
+// INIT
+carregarProdutos();
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,149 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+<meta charset="UTF-8">
+<title>Cadastro de Produtos</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="/front-end/css/cadProd.css">
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <i class="fas fa-arrow-left voltar" onclick="history.back()"></i>
+    <h1>CADASTRO DE PRODUTOS</h1>
+    <a href="/front-end/pages/home.html"><i class="fas fa-home home"></i></a>
+  </div>
+
+  <div class="box">
+
+    <div class="form">
+
+      <div class="left">
+        <input id="nome" type="text" placeholder="Nome do Produto">
+        <input id="preco" type="number" placeholder="Preço">
+        <input id="estoque" type="number" placeholder="Estoque">
+        <input id="categoria" type="text" placeholder="Categoria">
+      </div>
+
+      <div class="right">
+        <textarea id="descricao" placeholder="Descrição do Produto"></textarea>
+      </div>
+
+    </div>
+
+    <div class="buttons">
+      <button id="salvar" class="salvar">SALVAR PRODUTO</button>
+      <button onclick="history.back()" class="cancelar">Cancelar</button>
+    </div>
+
+    <p id="msg"></p>
+
+  </div>
+
+</div>
+
+<script>
+
+// 🔥 pegar ID da URL (editar)
+const params = new URLSearchParams(window.location.search);
+const id = params.get("id");
+
+// 🔥 carregar produto (edição)
+if (id) {
+  fetch(`http://localhost:3000/produtos/${id}`)
+    .then(res => {
+      if (!res.ok) throw new Error("Erro ao buscar produto");
+      return res.json();
+    })
+    .then(p => {
+      document.getElementById("nome").value = p.nome || "";
+      document.getElementById("preco").value = p.preco || "";
+      document.getElementById("estoque").value = p.estoque || "";
+      document.getElementById("categoria").value = p.categoria || "";
+      document.getElementById("descricao").value = p.descricao || "";
+    })
+    .catch(() => {
+      document.getElementById("msg").innerText = "Erro ao carregar produto";
+    });
+}
+
+// 🔥 salvar produto
+document.getElementById("salvar").addEventListener("click", async () => {
+
+  const nome = document.getElementById("nome").value.trim();
+  const preco = parseFloat(document.getElementById("preco").value);
+  const estoque = parseInt(document.getElementById("estoque").value);
+  const categoria = document.getElementById("categoria").value.trim();
+  const descricao = document.getElementById("descricao").value.trim();
+  const msg = document.getElementById("msg");
+
+  msg.innerText = "";
+
+  // 🔥 validação
+  if (!nome || isNaN(preco) || isNaN(estoque)) {
+    msg.style.color = "red";
+    msg.innerText = "Preencha nome, preço e estoque corretamente";
+    return;
+  }
+
+  try {
+
+    let res;
+
+    const body = {
+      nome,
+      preco,
+      estoque,
+      categoria,
+      descricao
+    };
+
+    // 🔥 editar
+    if (id) {
+      res = await fetch(`http://localhost:3000/produtos/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+      });
+
+    } else {
+      // 🔥 criar
+      res = await fetch("http://localhost:3000/produtos", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+      });
+    }
+
+    const data = await res.json();
+
+    if (res.ok) {
+      msg.style.color = "green";
+      msg.innerText = "Salvo com sucesso!";
+
+      setTimeout(() => {
+        window.location.href = "/front-end/pages/listaProd.html";
+      }, 1000);
+
+    } else {
+      msg.style.color = "red";
+      msg.innerText = data.erro || "Erro ao salvar produto";
+    }
+
+  } catch (erro) {
+    msg.style.color = "red";
+    msg.innerText = "Erro ao conectar com servidor";
+  }
+
+});
+
+</script>

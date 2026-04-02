@@ -1,0 +1,107 @@
+
+body{
+    margin:0;
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #2e6265;
+}
+
+/* container principal */
+.container{
+    width:900px;
+    margin:60px auto;
+    background:#53878d;
+    border-radius:40px;
+    padding:50px;
+    position:relative;
+}
+
+/* seta voltar */
+.voltar{
+    position:absolute;
+    top:25px;
+    left:30px;
+    color:white;
+    font-size:26px;
+}
+
+/* titulo */
+.titulo{
+    text-align:center;
+    color:white;
+    font-size:24px;
+    font-weight:bold;
+    letter-spacing:1px;
+    margin-bottom:20px;
+}
+
+/* card central */
+.card{
+    width:350px;
+    margin:0 auto;
+    background:#2e6265;
+    padding:40px;
+    border-radius:20px;
+    text-align:left;
+}
+
+/* foto perfil */
+.foto{
+    width:110px;
+    height:110px;
+    background:#cfcfcf;
+    border-radius:50%;
+    margin:0 auto;
+    border:6px solid #6da3a3;
+}
+
+/* botão editar foto */
+.btn-foto{
+    display:block;
+    margin:10px auto 20px auto;
+    background:#6da3a3;
+    border:none;
+    padding:6px 14px;
+    border-radius:20px;
+    color:white;
+    font-size:12px;
+}
+
+/* labels */
+label{
+    color:white;
+    font-weight:bold;
+    font-size:18px;
+}
+
+/* inputs */
+input{
+    width:100%;
+    height:35px;
+    margin-top:5px;
+    margin-bottom:15px;
+    border-radius:6px;
+    border:1px solid #a7c4c4;
+    background:#5c8f95;
+    padding-left:10px;
+    color:white;
+}
+
+/* botão salvar */
+.salvar{
+    display:block;
+    margin:25px auto 0 auto;
+    background:#6da3a3;
+    border:none;
+    padding:12px 28px;
+    border-radius:20px;
+    font-size:18px;
+    color:white;
+    cursor:pointer;
+}
+
+.salvar:hover{
+    background:#7fb5b5;
+}
+a{
+    text-decoration: none;
+}

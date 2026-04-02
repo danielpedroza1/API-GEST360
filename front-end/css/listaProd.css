@@ -1,0 +1,119 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial;
+}
+
+body {
+  background: #2f5d60;
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+
+.container {
+  width: 1000px;
+  background: #5d8b8f;
+  padding: 30px;
+  border-radius: 30px;
+}
+
+.header {
+  background: #3e6f72;
+  border-radius: 20px;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+}
+
+.header h1 {
+  font-size: 20px;
+  letter-spacing: 2px;
+}
+
+.box {
+  background: #e5e5e5;
+  margin-top: 20px;
+  padding: 25px;
+  border-radius: 25px;
+}
+
+.search {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.search input {
+  width: 100%;
+  padding: 12px 40px 12px 12px; /* espaço pra não ficar em cima do ícone */
+  border-radius: 10px;
+  border: none;
+  background: #d3d3d3;
+}
+
+.search .icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #555;
+  pointer-events: none; /* não atrapalha o clique no input */
+}
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+}
+thead tr{
+  width: 100%;
+}
+thead th {
+  background: #5d8b8f;
+  color: white;
+  padding: 12px;
+}
+
+thead th:first-child {
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+thead th:last-child {
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+tbody tr {
+  background: #dcdcdc;
+}
+
+td {
+  padding: 10px;
+  font-size: 13px;
+}
+
+.btn {
+  background: #38c21a;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.novo {
+  margin-top: 15px;
+  background: #4a6cf7;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+i{
+  color: white;
+}

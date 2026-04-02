@@ -19,10 +19,7 @@ const app = express();
 // ==========================
 
 // 🔥 CORS COM CREDENCIAIS (IMPORTANTE)
-app.use(cors({
-  origin: "http://localhost:5500", // ou porta do seu frontend
-  credentials: true
-}));
+app.use(cors())
 
 app.use(express.json());
 

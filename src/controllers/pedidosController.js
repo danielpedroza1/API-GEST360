@@ -8,6 +8,7 @@ export const criarPedido = async (req, res) => {
 
   try {
     const { cliente, itens } = req.body;
+  
 
     if (!cliente || !itens || itens.length === 0) {
       return res.status(400).json({ erro: "Pedido inválido" });
@@ -15,9 +16,11 @@ export const criarPedido = async (req, res) => {
 
     await connection.beginTransaction();
 
+      console.log(cliente)
+
     const [pedido] = await connection.query(
-      "INSERT INTO pedidos (cliente, data, total, usuario_id) VALUES (?, NOW(), 0, ?)",
-      [cliente, req.session.usuario.id]
+      "INSERT INTO pedidos (cliente, data_pedido, total) VALUES (?, NOW(), ?)",
+      [cliente]
     );
 
     let total = 0;
@@ -78,10 +81,8 @@ export const criarPedido = async (req, res) => {
 export const listarPedidos = async (req, res) => {
   try {
     const [dados] = await db.query(`
-      SELECT p.*, u.nome AS usuario_nome
-      FROM pedidos p
-      LEFT JOIN usuarios u ON p.usuario_id = u.id
-      ORDER BY p.data DESC
+      SELECT * FROM pedidos
+      ORDER BY data_pedido DESC
     `);
 
     res.json(dados);

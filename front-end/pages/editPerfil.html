@@ -1,0 +1,112 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Perfil</title>
+
+    <link rel="stylesheet" href="/front-end/css/editPerfil.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <i onclick="history.back()" class="fa-solid fa-arrow-left voltar"></i>
+
+    <div class="titulo">EDITAR PERFIL</div>
+
+    <div class="card">
+
+        <div class="foto"></div>
+
+        <button class="btn-foto" type="button">
+            Editar foto do perfil
+        </button>
+
+        <label>Alterar Nome completo</label>
+        <input id="nomePerfil" type="text">
+
+        <label>Alterar Email</label>
+        <input id="emailPerfil" type="email">
+
+        <label>Alterar Senha</label>
+        <input id="senhaPerfil" type="password">
+
+        <button id="salvar" class="salvar">Salvar Alterações</button>
+
+        <p id="msg"></p>
+
+    </div>
+
+</div>
+
+<script>
+
+// 🔥 pegar usuário salvo
+const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+if (!usuario) {
+    window.location.href = "/index.html";
+}
+
+// 🔥 preencher campos
+document.getElementById("nomePerfil").value = usuario.nome;
+document.getElementById("emailPerfil").value = usuario.email;
+
+// 🔥 salvar alterações
+document.getElementById("salvar").addEventListener("click", async () => {
+
+    const nome = document.getElementById("nomePerfil").value;
+    const email = document.getElementById("emailPerfil").value;
+    const senha = document.getElementById("senhaPerfil").value;
+    const msg = document.getElementById("msg");
+
+    try {
+
+        const res = await fetch(`http://localhost:3000/usuarios/${usuario.id}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: "include",
+            body: JSON.stringify({
+                nome,
+                email,
+                senha
+            })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            msg.style.color = "green";
+            msg.innerText = "Atualizado com sucesso!";
+
+            // 🔥 atualizar localStorage
+            usuario.nome = nome;
+            usuario.email = email;
+
+            localStorage.setItem("usuario", JSON.stringify(usuario));
+
+            setTimeout(() => {
+                window.location.href = "home.html";
+            }, 1000);
+
+        } else {
+            msg.style.color = "red";
+            msg.innerText = data.erro;
+        }
+
+    } catch {
+        msg.innerText = "Erro ao conectar com servidor";
+    }
+
+});
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,124 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro - Gestão 360</title>
+    <link rel="stylesheet" href="/front-end/css/cadFunc.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+        <h2>CADASTRO DE FUNCIONÁRIO</h2>
+
+        <div class="conteudo">
+
+            <div class="formulario">
+
+                <label>Nome completo</label>
+                <input id="nome" type="text" placeholder="Digite seu nome completo">
+
+                <label>Email</label>
+                <input id="email" type="email" placeholder="seu@email.com">
+
+                <label>Senha</label>
+                <input id="senha" type="password" placeholder="Senha">
+
+                <select id="tipo">
+                    <option value="">Escolha uma categoria</option>
+                    <option value="funcionario">Funcionário</option>
+                    <option value="admin">Admin</option> 
+                </select>
+
+            </div>
+
+        </div>
+
+        <button id="salvar">Cadastrar</button>
+
+        <p id="msg"></p>
+
+    </div>
+
+</div>
+
+<script>
+
+// 🔥 verificar se é admin (CORRIGIDO)
+const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+if (!usuario || usuario.usuario.tipo !== "admin") {
+    alert("Apenas administrador pode acessar");
+    window.location.href = "/front-end/pages/home.html";
+}
+
+// 🔥 cadastrar usuário
+document.getElementById("salvar").addEventListener("click", async () => {
+
+    const nome = document.getElementById("nome").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const senha = document.getElementById("senha").value.trim();
+    const tipo = document.getElementById("tipo").value;
+    const msg = document.getElementById("msg");
+
+    msg.innerText = "";
+
+    // 🔥 validação
+    if (!nome || !email || !senha || !tipo) {
+        msg.style.color = "red";
+        msg.innerText = "Preencha todos os campos";
+        return;
+    }
+
+    try {
+
+        const res = await fetch("http://localhost:3000/usuarios", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                nome,
+                email,
+                senha,
+                tipo
+            })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            msg.style.color = "green";
+            msg.innerText = "Usuário criado com sucesso!";
+
+            // limpa campos
+            document.getElementById("nome").value = "";
+            document.getElementById("email").value = "";
+            document.getElementById("senha").value = "";
+            document.getElementById("tipo").value = "";
+
+            setTimeout(() => {
+                window.location.href = "/front-end/pages/home.html";
+            }, 1000);
+
+        } else {
+            msg.style.color = "red";
+            msg.innerText = data.erro || "Erro ao cadastrar";
+        }
+
+    } catch (erro) {
+        msg.style.color = "red";
+        msg.innerText = "Erro ao conectar com servidor";
+    }
+
+});
+
+</script>
+
+</body>
+
+</html>
