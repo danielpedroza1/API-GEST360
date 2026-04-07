@@ -68,6 +68,7 @@
                     <th>ID</th>
                     <th>Cliente</th>
                     <th>Data</th>
+                    <th>Produtos</th>
                     <th>Total</th>
                     <th>Ação</th>
                 </tr>
@@ -84,7 +85,21 @@ let produtos = [];
 let itensPedido = [];
 
 // ==========================
-// 🔥 CARREGAR PRODUTOS
+// FORMATAR DATA BR (SEM HORA)
+// ==========================
+function formatarDataBR(dataISO) {
+    const data = new Date(dataISO);
+
+    return data.toLocaleDateString("pt-BR", {
+        timeZone: "America/Sao_Paulo",
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric"
+    });
+}
+
+// ==========================
+// CARREGAR PRODUTOS
 // ==========================
 async function carregarProdutos() {
     try {
@@ -108,7 +123,7 @@ async function carregarProdutos() {
 }
 
 // ==========================
-// 🔥 ADICIONAR ITEM
+// ADICIONAR ITEM
 // ==========================
 document.getElementById("btn-add-item").addEventListener("click", () => {
     const produtoId = document.getElementById("order-product").value;
@@ -139,7 +154,7 @@ document.getElementById("btn-add-item").addEventListener("click", () => {
 });
 
 // ==========================
-// 🔥 RENDER ITENS
+// RENDER ITENS
 // ==========================
 function renderItens() {
     const tbody = document.getElementById("tabela-itens");
@@ -150,8 +165,8 @@ function renderItens() {
             <tr>
                 <td>${item.nome}</td>
                 <td>${item.qtd}</td>
-                <td>R$ ${item.preco}</td>
-                <td>R$ ${item.total}</td>
+                <td>R$ ${Number(item.preco).toFixed(2)}</td>
+                <td>R$ ${Number(item.total).toFixed(2)}</td>
                 <td>
                     <button onclick="removerItem(${index})">Excluir</button>
                 </td>
@@ -161,7 +176,7 @@ function renderItens() {
 }
 
 // ==========================
-// 🔥 REMOVER ITEM
+// REMOVER ITEM
 // ==========================
 function removerItem(index) {
     itensPedido.splice(index, 1);
@@ -169,13 +184,14 @@ function removerItem(index) {
 }
 
 // ==========================
-// 🔥 SALVAR PEDIDO
+// SALVAR PEDIDO
 // ==========================
 document.querySelector(".salvar").addEventListener("click", async () => {
     const cliente = document.getElementById("cliente").value;
+    const data = document.getElementById("data").value;
 
-    if (!cliente || itensPedido.length === 0) {
-        alert("Preencha cliente e adicione produtos");
+    if (!cliente || !data || itensPedido.length === 0) {
+        alert("Preencha cliente, data e adicione produtos");
         return;
     }
 
@@ -187,6 +203,7 @@ document.querySelector(".salvar").addEventListener("click", async () => {
             },
             body: JSON.stringify({
                 cliente,
+                data_pedido: data,
                 itens: itensPedido.map(item => ({
                     produto_id: item.id,
                     quantidade: item.qtd
@@ -195,7 +212,6 @@ document.querySelector(".salvar").addEventListener("click", async () => {
         });
 
         const resultado = await res.json();
-        console.log("Pedido salvo:", resultado);
 
         if (!res.ok) {
             throw new Error(resultado.erro || "Erro ao salvar pedido");
@@ -203,14 +219,12 @@ document.querySelector(".salvar").addEventListener("click", async () => {
 
         alert("Pedido salvo!");
 
-        // limpa formulário
         itensPedido = [];
         document.getElementById("cliente").value = "";
         document.getElementById("data").value = "";
         document.getElementById("order-qty").value = 1;
         document.getElementById("order-product").value = "";
 
-        // atualiza tela
         renderItens();
         await carregarPedidos();
         await carregarProdutos();
@@ -222,25 +236,28 @@ document.querySelector(".salvar").addEventListener("click", async () => {
 });
 
 // ==========================
-// 🔥 CARREGAR PEDIDOS
+// CARREGAR PEDIDOS
 // ==========================
 async function carregarPedidos() {
     try {
         const res = await fetch("http://localhost:3000/pedidos");
         const pedidos = await res.json();
 
-        console.log("Lista de pedidos:", pedidos);
-
         const tbody = document.getElementById("lista-pedidos");
         tbody.innerHTML = "";
 
         pedidos.forEach(p => {
+            const produtosTexto = p.itens && p.itens.length > 0
+                ? p.itens.map(item => `${item.nome} (${item.quantidade})`).join(", ")
+                : "Sem produtos";
+
             tbody.innerHTML += `
                 <tr>
                     <td>${p.id}</td>
                     <td>${p.cliente}</td>
-                    <td>${p.data_pedido}</td>
-                    <td>R$ ${p.total}</td>
+                    <td>${formatarDataBR(p.data_pedido)}</td>
+                    <td>${produtosTexto}</td>
+                    <td>R$ ${Number(p.total).toFixed(2)}</td>
                     <td>
                         <button onclick="excluirPedido(${p.id})">
                             Excluir
@@ -256,24 +273,37 @@ async function carregarPedidos() {
 }
 
 // ==========================
-// 🔥 EXCLUIR PEDIDO
+// EXCLUIR PEDIDO
 // ==========================
 async function excluirPedido(id) {
+    const confirmar = confirm("Deseja excluir este pedido?");
+
+    if (!confirmar) return;
+
     try {
-        await fetch(`http://localhost:3000/pedidos/${id}`, {
+        const res = await fetch(`http://localhost:3000/pedidos/${id}`, {
             method: "DELETE"
         });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            throw new Error(data.erro || "Erro ao excluir pedido");
+        }
+
+        alert("Pedido excluído com sucesso!");
 
         await carregarPedidos();
         await carregarProdutos();
 
     } catch (erro) {
         console.error("Erro ao excluir pedido:", erro);
+        alert("Erro ao excluir pedido");
     }
 }
 
 // ==========================
-// 🔥 INIT
+// INIT
 // ==========================
 carregarProdutos();
 carregarPedidos();

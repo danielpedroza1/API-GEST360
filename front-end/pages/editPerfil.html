@@ -43,17 +43,19 @@
 </div>
 
 <script>
-
 // 🔥 pegar usuário salvo
-const usuario = JSON.parse(localStorage.getItem("usuario"));
+const usuarioSalvo = JSON.parse(localStorage.getItem("usuario"));
 
-if (!usuario) {
+if (!usuarioSalvo) {
     window.location.href = "/index.html";
 }
 
-// 🔥 preencher campos
-document.getElementById("nomePerfil").value = usuario.nome;
-document.getElementById("emailPerfil").value = usuario.email;
+// 🔥 compatibilidade caso esteja salvo como { usuario: {...} }
+const usuario = usuarioSalvo.usuario || usuarioSalvo;
+
+// 🔥 preencher campos sem undefined
+document.getElementById("nomePerfil").value = usuario.nome || "";
+document.getElementById("emailPerfil").value = usuario.email || "";
 
 // 🔥 salvar alterações
 document.getElementById("salvar").addEventListener("click", async () => {
@@ -66,17 +68,16 @@ document.getElementById("salvar").addEventListener("click", async () => {
     try {
 
         const res = await fetch(`http://localhost:3000/usuarios/${usuario.id}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            credentials: "include",
-            body: JSON.stringify({
-                nome,
-                email,
-                senha
-            })
-        });
+        method: "PUT",
+        headers: {
+        "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+        nome,
+        email,
+        senha
+    })
+});
 
         const data = await res.json();
 
@@ -96,17 +97,16 @@ document.getElementById("salvar").addEventListener("click", async () => {
 
         } else {
             msg.style.color = "red";
-            msg.innerText = data.erro;
+            msg.innerText = data.erro || "Erro ao atualizar";
         }
 
     } catch {
+        msg.style.color = "red";
         msg.innerText = "Erro ao conectar com servidor";
     }
 
 });
-
 </script>
 
 </body>
-
 </html>

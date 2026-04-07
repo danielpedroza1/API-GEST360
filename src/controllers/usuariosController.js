@@ -7,8 +7,7 @@ import bcrypt from "bcrypt";
 export const listarUsuarios = async (req, res) => {
   try {
     const [usuarios] = await db.query(
-      "SELECT id, nome, email, tipo FROM usuarios WHERE empresa_id = ?",
-      [req.session.usuario.empresa_id]
+      "SELECT id, nome, email, tipo FROM usuarios"
     );
 
     res.json(usuarios);
@@ -27,8 +26,8 @@ export const buscarUsuario = async (req, res) => {
     const { id } = req.params;
 
     const [usuario] = await db.query(
-      "SELECT id, nome, email, tipo FROM usuarios WHERE id = ? AND empresa_id = ?",
-      [id, req.session.usuario.empresa_id]
+      "SELECT id, nome, email, tipo FROM usuarios WHERE id = ?",
+      [id]
     );
 
     if (usuario.length === 0) {
@@ -44,7 +43,7 @@ export const buscarUsuario = async (req, res) => {
 };
 
 // ==========================
-// ➕ CRIAR USUÁRIO (ADMIN)
+// ➕ CRIAR USUÁRIO
 // ==========================
 export const criarUsuario = async (req, res) => {
   try {
@@ -54,7 +53,6 @@ export const criarUsuario = async (req, res) => {
       return res.status(400).json({ erro: "Dados obrigatórios faltando" });
     }
 
-    // 🔥 evita email duplicado
     const [existe] = await db.query(
       "SELECT id FROM usuarios WHERE email = ?",
       [email]
@@ -68,12 +66,7 @@ export const criarUsuario = async (req, res) => {
 
     await db.query(
       "INSERT INTO usuarios (nome, email, senha, tipo) VALUES (?, ?, ?, ?)",
-      [
-        nome,
-        email,
-        hash,
-        tipo,
-      ]
+      [nome, email, hash, tipo]
     );
 
     res.status(201).json({ mensagem: "Usuário criado com sucesso" });
@@ -95,14 +88,14 @@ export const atualizarUsuario = async (req, res) => {
     let query = "UPDATE usuarios SET nome=?, email=?";
     let params = [nome, email];
 
-    if (senha) {
+    if (senha && senha.trim() !== "") {
       const hash = await bcrypt.hash(senha, 10);
       query += ", senha=?";
       params.push(hash);
     }
 
-    query += " WHERE id=? AND empresa_id=?";
-    params.push(id, req.session.usuario.empresa_id);
+    query += " WHERE id=?";
+    params.push(id);
 
     const [resultado] = await db.query(query, params);
 
@@ -126,8 +119,8 @@ export const deletarUsuario = async (req, res) => {
     const { id } = req.params;
 
     const [resultado] = await db.query(
-      "DELETE FROM usuarios WHERE id=? AND empresa_id=?",
-      [id, req.session.usuario.empresa_id]
+      "DELETE FROM usuarios WHERE id=?",
+      [id]
     );
 
     if (resultado.affectedRows === 0) {

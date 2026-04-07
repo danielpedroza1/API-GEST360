@@ -18,18 +18,21 @@ const app = express();
 // 🔧 MIDDLEWARES
 // ==========================
 
-// 🔥 CORS COM CREDENCIAIS (IMPORTANTE)
-app.use(cors())
+// 🔥 CORS CORRIGIDO
+app.use(cors({
+  origin: "http://127.0.0.1:5500",
+  credentials: true
+}));
 
 app.use(express.json());
 
-// 🔥 SESSION (ESSENCIAL)
+// 🔥 SESSION
 app.use(session({
   secret: "segredo_super",
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false, // true só em HTTPS
+    secure: false,
     httpOnly: true
   }
 }));
@@ -54,7 +57,6 @@ app.use((req, res) => {
 // ==========================
 const PORT = process.env.PORT || 3000;
 
-// 🔥 CONECTA BANCO ANTES
 connectDB();
 
 app.listen(PORT, () => {
