@@ -75,3 +75,21 @@ select{
     width: 165px;
     opacity: 70%;
 }
+/* HEADER */
+.header{
+padding:15px;
+border-radius:20px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+color:white;
+}
+
+.header i{
+cursor:pointer;
+transition:0.2s;
+}
+
+.header i:hover{
+transform:scale(1.1);
+}

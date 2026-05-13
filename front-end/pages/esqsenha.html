@@ -6,6 +6,7 @@
 <title>Esqueci a Senha</title>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
 *{
@@ -116,8 +117,6 @@ button:hover{
         <button type="submit">Enviar</button>
     </form>
 
-    <div class="msg" id="mensagem"></div>
-
     <a href="login.html" class="voltar">Voltar ao login</a>
 </div>
 
@@ -129,6 +128,15 @@ form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const email = document.getElementById("email").value;
+
+    if (!email) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Campo obrigatório',
+            text: 'Digite seu email.'
+        });
+        return;
+    }
 
     try {
         const resposta = await fetch("http://localhost:3000/esqueci-senha", {
@@ -142,16 +150,27 @@ form.addEventListener("submit", async (e) => {
         const data = await resposta.json();
 
         if(resposta.ok){
-            mensagem.textContent = "Email enviado com sucesso!";
-            mensagem.className = "msg sucesso";
+            Swal.fire({
+                icon: 'success',
+                title: 'Email enviado!',
+                text: 'Verifique sua caixa de entrada para redefinir a senha.',
+                timer: 3000,
+                showConfirmButton: false
+            });
         } else {
-            mensagem.textContent = data.erro || "Erro ao enviar email";
-            mensagem.className = "msg erro";
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro ao enviar',
+                text: data.erro || "Erro ao enviar email"
+            });
         }
 
     } catch (erro) {
-        mensagem.textContent = "Erro ao conectar com o servidor";
-        mensagem.className = "msg erro";
+        Swal.fire({
+            icon: 'error',
+            title: 'Erro de conexão',
+            text: 'Não foi possível conectar ao servidor.'
+        });
     }
 });
 </script>

@@ -8,6 +8,7 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="/front-end/css/Sistemadeped.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -24,14 +25,21 @@
     <!-- CADASTRO -->
     <div class="box section">
         <h3>CADASTRAR PEDIDO</h3>
-
-        <input type="text" id="cliente" placeholder="Nome do cliente">
-        <input type="date" id="data">
-
+        <div>
+            <label for="cliente">Nome do Cliente</label>
+            <input type="text" id="cliente" placeholder="Nome do cliente">
+        </div>
+        <div>
+            <label for="data">Data do Pedido</label>
+            <input type="date" id="data">
+        </div>
+        <label for="">Escolha um produto</label>
         <div class="order-add-row">
-            <select id="order-product">
-                <option value="">Escolha um Produto</option>
-            </select>
+         
+                <select id="order-product">
+                    <option value="">Escolha um Produto</option>
+                </select>
+           
 
             <input type="number" id="order-qty" min="1" value="1">
 
@@ -132,12 +140,20 @@ document.getElementById("btn-add-item").addEventListener("click", () => {
     const produto = produtos.find(p => p.id == produtoId);
 
     if (!produto || qtd <= 0) {
-        alert("Selecione produto e quantidade válida");
+        Swal.fire({
+            icon: 'error',
+            title: 'Dados inválidos',
+            text: 'Selecione produto e quantidade válida.'
+        });
         return;
     }
 
     if (qtd > produto.estoque) {
-        alert("Estoque insuficiente");
+        Swal.fire({
+            icon: 'warning',
+            title: 'Estoque insuficiente',
+            text: `Não há estoque suficiente para ${produto.nome}. Disponível: ${produto.estoque}`
+        });
         return;
     }
 
@@ -191,7 +207,11 @@ document.querySelector(".salvar").addEventListener("click", async () => {
     const data = document.getElementById("data").value;
 
     if (!cliente || !data || itensPedido.length === 0) {
-        alert("Preencha cliente, data e adicione produtos");
+        Swal.fire({
+            icon: 'error',
+            title: 'Dados incompletos',
+            text: 'Preencha cliente, data e adicione produtos.'
+        });
         return;
     }
 
@@ -217,21 +237,30 @@ document.querySelector(".salvar").addEventListener("click", async () => {
             throw new Error(resultado.erro || "Erro ao salvar pedido");
         }
 
-        alert("Pedido salvo!");
-
-        itensPedido = [];
-        document.getElementById("cliente").value = "";
-        document.getElementById("data").value = "";
-        document.getElementById("order-qty").value = 1;
-        document.getElementById("order-product").value = "";
-
-        renderItens();
-        await carregarPedidos();
-        await carregarProdutos();
+        Swal.fire({
+            icon: 'success',
+            title: 'Pedido salvo!',
+            text: 'O pedido foi criado com sucesso.',
+            timer: 2000,
+            showConfirmButton: false
+        }).then(() => {
+            itensPedido = [];
+            document.getElementById("cliente").value = "";
+            document.getElementById("data").value = "";
+            document.getElementById("order-qty").value = 1;
+            document.getElementById("order-product").value = "";
+            renderItens();
+            carregarPedidos();
+            carregarProdutos();
+        });
 
     } catch (erro) {
         console.error("Erro ao salvar:", erro);
-        alert("Erro ao salvar pedido");
+        Swal.fire({
+            icon: 'error',
+            title: 'Erro ao salvar',
+            text: erro.message || 'Não foi possível salvar o pedido.'
+        });
     }
 });
 
@@ -269,6 +298,11 @@ async function carregarPedidos() {
 
     } catch (erro) {
         console.error("Erro ao carregar pedidos:", erro);
+        Swal.fire({
+            icon: 'error',
+            title: 'Erro ao carregar',
+            text: 'Não foi possível carregar a lista de pedidos.'
+        });
     }
 }
 
@@ -276,9 +310,16 @@ async function carregarPedidos() {
 // EXCLUIR PEDIDO
 // ==========================
 async function excluirPedido(id) {
-    const confirmar = confirm("Deseja excluir este pedido?");
+    const result = await Swal.fire({
+        title: 'Deseja excluir este pedido?',
+        text: 'Esta ação não pode ser desfeita.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sim, excluir',
+        cancelButtonText: 'Cancelar'
+    });
 
-    if (!confirmar) return;
+    if (!result.isConfirmed) return;
 
     try {
         const res = await fetch(`http://localhost:3000/pedidos/${id}`, {
@@ -291,14 +332,24 @@ async function excluirPedido(id) {
             throw new Error(data.erro || "Erro ao excluir pedido");
         }
 
-        alert("Pedido excluído com sucesso!");
-
-        await carregarPedidos();
-        await carregarProdutos();
+        Swal.fire({
+            icon: 'success',
+            title: 'Pedido excluído!',
+            text: 'O pedido foi removido com sucesso.',
+            timer: 1500,
+            showConfirmButton: false
+        }).then(() => {
+            carregarPedidos();
+            carregarProdutos();
+        });
 
     } catch (erro) {
         console.error("Erro ao excluir pedido:", erro);
-        alert("Erro ao excluir pedido");
+        Swal.fire({
+            icon: 'error',
+            title: 'Erro ao excluir',
+            text: erro.message || 'Não foi possível excluir o pedido.'
+        });
     }
 }
 

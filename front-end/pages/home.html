@@ -7,6 +7,7 @@
 
     <link rel="stylesheet" href="/front-end/css/home.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -17,10 +18,10 @@
         <i onclick="history.back()" class="fa-solid fa-arrow-left"></i>
 
         <div class="user">
-            <a href="/front-end/pages/editPerfil.html">
+            <a href="../pages/editPerfil.html">
                 <i class="fa-regular fa-user"></i>
             </a>
-            <button id="logout">Sair do Perfil</button>
+            <a href="/front-end/index.html"><i class="fa-solid fa-right-from-bracket logout-icon"></i></a>
         </div>
     </div>
 
@@ -80,20 +81,43 @@ btnAdmin.addEventListener("click", (e) => {
     
     if (usuario.usuario.tipo !== "admin") {
         e.preventDefault(); // impede navegar para cadFunc.html
-        alert("Acesso negado! Apenas Administradores podem acessar esta página.");
+        Swal.fire({
+            icon: 'error',
+            title: 'Acesso negado',
+            text: 'Apenas administradores podem acessar esta página.'
+        });
     }
 });
 
 // 🔥 logout
 document.getElementById("logout").addEventListener("click", async () => {
-    await fetch("http://localhost:3000/auth/logout", {
-        method: "POST",
-        credentials: "include"
+    const result = await Swal.fire({
+        title: 'Deseja sair?',
+        text: 'Você será desconectado do sistema.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sim, sair',
+        cancelButtonText: 'Cancelar'
     });
 
-    localStorage.removeItem("usuario");
+    if (result.isConfirmed) {
+        await fetch("http://localhost:3000/auth/logout", {
+            method: "POST",
+            credentials: "include"
+        });
 
-    window.location.href = "/front-end/index.html";
+        localStorage.removeItem("usuario");
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Deslogado',
+            text: 'Você foi desconectado com sucesso.',
+            timer: 1500,
+            showConfirmButton: false
+        }).then(() => {
+            window.location.href = "/front-end/index.html";
+        });
+    }
 });
 
 </script>

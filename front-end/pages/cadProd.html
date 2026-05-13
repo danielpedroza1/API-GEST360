@@ -7,6 +7,7 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="/front-end/css/cadProd.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -41,8 +42,6 @@
       <button onclick="history.back()" class="cancelar">Cancelar</button>
     </div>
 
-    <p id="msg"></p>
-
   </div>
 
 </div>
@@ -68,7 +67,11 @@ if (id) {
       document.getElementById("descricao").value = p.descricao || "";
     })
     .catch(() => {
-      document.getElementById("msg").innerText = "Erro ao carregar produto";
+      Swal.fire({
+          icon: 'error',
+          title: 'Erro ao carregar',
+          text: 'Não foi possível carregar os dados do produto.'
+      });
     });
 }
 
@@ -80,14 +83,14 @@ document.getElementById("salvar").addEventListener("click", async () => {
   const estoque = parseInt(document.getElementById("estoque").value);
   const categoria = document.getElementById("categoria").value.trim();
   const descricao = document.getElementById("descricao").value.trim();
-  const msg = document.getElementById("msg");
-
-  msg.innerText = "";
 
   // 🔥 validação
   if (!nome || isNaN(preco) || isNaN(estoque)) {
-    msg.style.color = "red";
-    msg.innerText = "Preencha nome, preço e estoque corretamente";
+    Swal.fire({
+        icon: 'error',
+        title: 'Dados inválidos',
+        text: 'Preencha nome, preço e estoque corretamente.'
+    });
     return;
   }
 
@@ -127,21 +130,30 @@ document.getElementById("salvar").addEventListener("click", async () => {
     const data = await res.json();
 
     if (res.ok) {
-      msg.style.color = "green";
-      msg.innerText = "Salvo com sucesso!";
-
-      setTimeout(() => {
+      Swal.fire({
+          icon: 'success',
+          title: 'Produto salvo!',
+          text: 'O produto foi cadastrado/atualizado com sucesso.',
+          timer: 2000,
+          showConfirmButton: false
+      }).then(() => {
         window.location.href = "/front-end/pages/listaProd.html";
-      }, 1000);
+      });
 
     } else {
-      msg.style.color = "red";
-      msg.innerText = data.erro || "Erro ao salvar produto";
+      Swal.fire({
+          icon: 'error',
+          title: 'Erro ao salvar',
+          text: data.erro || "Erro ao salvar produto"
+      });
     }
 
   } catch (erro) {
-    msg.style.color = "red";
-    msg.innerText = "Erro ao conectar com servidor";
+    Swal.fire({
+        icon: 'error',
+        title: 'Erro de conexão',
+        text: 'Não foi possível conectar ao servidor.'
+    });
   }
 
 });

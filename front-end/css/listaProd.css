@@ -114,6 +114,40 @@ td {
   border-radius: 8px;
   cursor: pointer;
 }
+/* HEADER */
+.header{
+background:#3e6f72;
+padding:15px;
+border-radius:20px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+color:white;
+}
+
+.header i{
+cursor:pointer;
+transition:0.2s;
+}
+
+.header i:hover{
+transform:scale(1.1);
+}
+
 i{
   color: white;
+}
+.botaoeditar {
+  background: #a0ac02;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.botaoeditar:hover {
+  background: #d9363e;
 }

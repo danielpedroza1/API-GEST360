@@ -47,7 +47,7 @@ export const criarPedido = async (req, res) => {
       total += preco * item.quantidade;
 
       await connection.query(
-        "INSERT INTO itens_pedido (pedido_id, produto_id, quantidade, preco) VALUES (?, ?, ?, ?)",
+        "INSERT INTO itens_pedido (pedido_id, produto_id, quantidade, preco_unitario) VALUES (?, ?, ?, ?)",
         [pedido.insertId, item.produto_id, item.quantidade, preco]
       );
 

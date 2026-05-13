@@ -4,7 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Cadastro - Gestão 360</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="/front-end/css/cadFunc.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -12,7 +15,9 @@
 <div class="container">
 
     <div class="card">
-
+       <div class="header">
+        <i class="fas fa-arrow-left" onclick="history.back()"></i>
+        </div>
         <h2>CADASTRO DE FUNCIONÁRIO</h2>
 
         <div class="conteudo">
@@ -40,8 +45,6 @@
 
         <button id="salvar">Cadastrar</button>
 
-        <p id="msg"></p>
-
     </div>
 
 </div>
@@ -52,8 +55,15 @@
 const usuario = JSON.parse(localStorage.getItem("usuario"));
 
 if (!usuario || usuario.usuario.tipo !== "admin") {
-    alert("Apenas administrador pode acessar");
-    window.location.href = "/front-end/pages/home.html";
+    Swal.fire({
+        icon: 'error',
+        title: 'Acesso negado',
+        text: 'Apenas administradores podem acessar esta página.',
+        timer: 3000,
+        showConfirmButton: false
+    }).then(() => {
+        window.location.href = "/front-end/pages/home.html";
+    });
 }
 
 // 🔥 cadastrar usuário
@@ -63,14 +73,14 @@ document.getElementById("salvar").addEventListener("click", async () => {
     const email = document.getElementById("email").value.trim();
     const senha = document.getElementById("senha").value.trim();
     const tipo = document.getElementById("tipo").value;
-    const msg = document.getElementById("msg");
-
-    msg.innerText = "";
 
     // 🔥 validação
     if (!nome || !email || !senha || !tipo) {
-        msg.style.color = "red";
-        msg.innerText = "Preencha todos os campos";
+        Swal.fire({
+            icon: 'error',
+            title: 'Campos obrigatórios',
+            text: 'Preencha todos os campos.'
+        });
         return;
     }
 
@@ -92,27 +102,35 @@ document.getElementById("salvar").addEventListener("click", async () => {
         const data = await res.json();
 
         if (res.ok) {
-            msg.style.color = "green";
-            msg.innerText = "Usuário criado com sucesso!";
-
-            // limpa campos
-            document.getElementById("nome").value = "";
-            document.getElementById("email").value = "";
-            document.getElementById("senha").value = "";
-            document.getElementById("tipo").value = "";
-
-            setTimeout(() => {
+            Swal.fire({
+                icon: 'success',
+                title: 'Funcionário cadastrado!',
+                text: 'O usuário foi criado com sucesso.',
+                timer: 2000,
+                showConfirmButton: false
+            }).then(() => {
+                // limpa campos
+                document.getElementById("nome").value = "";
+                document.getElementById("email").value = "";
+                document.getElementById("senha").value = "";
+                document.getElementById("tipo").value = "";
                 window.location.href = "/front-end/pages/home.html";
-            }, 1000);
+            });
 
         } else {
-            msg.style.color = "red";
-            msg.innerText = data.erro || "Erro ao cadastrar";
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro ao cadastrar',
+                text: data.erro || "Erro ao cadastrar funcionário"
+            });
         }
 
     } catch (erro) {
-        msg.style.color = "red";
-        msg.innerText = "Erro ao conectar com servidor";
+        Swal.fire({
+            icon: 'error',
+            title: 'Erro de conexão',
+            text: 'Não foi possível conectar ao servidor.'
+        });
     }
 
 });

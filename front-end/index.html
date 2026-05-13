@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Login</title>
     <link rel="stylesheet" href="/front-end/css/login.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -30,7 +31,6 @@
 
         <button id="btnLogin">Acessar</button>
 
-        <p id="msg"></p>
     </div>
 
 </div>
@@ -40,12 +40,13 @@ document.addEventListener("DOMContentLoaded", () => { // garante que os elemento
   document.getElementById("btnLogin").addEventListener("click", async () => {
       const email = document.getElementById("email").value.trim();
       const senha = document.getElementById("senha").value.trim();
-      const msg = document.getElementById("msg");
-      msg.innerText = "";
-      msg.style.color = "red"; // default vermelho para erros
 
       if (!email || !senha) {
-          msg.innerText = "Preencha todos os campos";
+          Swal.fire({
+              icon: 'error',
+              title: 'Campos obrigatórios',
+              text: 'Preencha todos os campos.'
+          });
           return;
       }
 
@@ -61,17 +62,29 @@ document.addEventListener("DOMContentLoaded", () => { // garante que os elemento
           const usuario = localStorage.setItem('usuario', JSON.stringify(data))
 
           if (res.ok) {
-              msg.style.color = "green";
-              msg.innerText = "Login realizado!";
-              setTimeout(() => {
-                  window.location.href = "/front-end/pages/home.html";
-              }, 1000);
+              Swal.fire({
+                  icon: 'success',
+                  title: 'Login realizado!',
+                  text: 'Você entrou no sistema com sucesso.',
+                  timer: 2000,
+                  showConfirmButton: false
+              }).then(() => {
+                  window.location.href = "../front-end/pages/home.html";
+              });
           } else {
-              msg.innerText = data.erro || "Erro desconhecido";
+              Swal.fire({
+                  icon: 'error',
+                  title: 'Erro no login',
+                  text: data.erro || "Erro desconhecido"
+              });
           }
 
       } catch (err) {
-          msg.innerText = "Erro ao conectar com servidor";
+          Swal.fire({
+              icon: 'error',
+              title: 'Erro de conexão',
+              text: 'Não foi possível conectar ao servidor.'
+          });
           console.error(err);
       }
   });

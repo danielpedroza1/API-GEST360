@@ -14,6 +14,11 @@ justify-content:center;
 padding:30px;
 }
 
+.box h3 {
+    margin-bottom: 20px;
+}
+
+
 /* CONTAINER */
 .container{
 width:1200px;
@@ -47,18 +52,20 @@ transform:scale(1.1);
 background:#e5e5e5;
 padding:20px;
 border-radius:25px;
-margin-top:20px;
+margin:20px 0;
 }
 
 /* CAMPOS */
-input{
+input,select{
 width:100%;
 padding:10px;
 border:none;
 border-radius:10px;
 background:#cfcfcf;
-margin-bottom:10px;
+margin:10px 0;
 }
+
+
 
 /* TABELA */
 table{
@@ -112,7 +119,6 @@ i{
     color: white;
 }
 .order-add-row{
-    margin-top: 12px;
     display: grid;
     grid-template-columns: 1fr 50px;
     gap: 10px;

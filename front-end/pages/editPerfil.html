@@ -7,6 +7,7 @@
 
     <link rel="stylesheet" href="/front-end/css/editPerfil.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -36,8 +37,6 @@
 
         <button id="salvar" class="salvar">Salvar Alterações</button>
 
-        <p id="msg"></p>
-
     </div>
 
 </div>
@@ -63,7 +62,6 @@ document.getElementById("salvar").addEventListener("click", async () => {
     const nome = document.getElementById("nomePerfil").value;
     const email = document.getElementById("emailPerfil").value;
     const senha = document.getElementById("senhaPerfil").value;
-    const msg = document.getElementById("msg");
 
     try {
 
@@ -82,27 +80,34 @@ document.getElementById("salvar").addEventListener("click", async () => {
         const data = await res.json();
 
         if (res.ok) {
-            msg.style.color = "green";
-            msg.innerText = "Atualizado com sucesso!";
-
-            // 🔥 atualizar localStorage
-            usuario.nome = nome;
-            usuario.email = email;
-
-            localStorage.setItem("usuario", JSON.stringify(usuario));
-
-            setTimeout(() => {
+            Swal.fire({
+                icon: 'success',
+                title: 'Perfil atualizado!',
+                text: 'Seus dados foram atualizados com sucesso.',
+                timer: 2000,
+                showConfirmButton: false
+            }).then(() => {
+                // 🔥 atualizar localStorage
+                usuario.nome = nome;
+                usuario.email = email;
+                localStorage.setItem("usuario", JSON.stringify(usuario));
                 window.location.href = "home.html";
-            }, 1000);
+            });
 
         } else {
-            msg.style.color = "red";
-            msg.innerText = data.erro || "Erro ao atualizar";
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro ao atualizar',
+                text: data.erro || "Erro ao atualizar perfil"
+            });
         }
 
     } catch {
-        msg.style.color = "red";
-        msg.innerText = "Erro ao conectar com servidor";
+        Swal.fire({
+            icon: 'error',
+            title: 'Erro de conexão',
+            text: 'Não foi possível conectar ao servidor.'
+        });
     }
 
 });

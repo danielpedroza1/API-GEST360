@@ -7,6 +7,7 @@
 
   <link rel="stylesheet" href="/front-end/css/listaProd.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -14,6 +15,7 @@
 <div class="container">
 
   <div class="header">
+        <i class="fas fa-arrow-left" onclick="history.back()"></i>
     <h1>LISTA DE PRODUTOS</h1>
     <a href="/front-end/pages/home.html"><i class="fas fa-home home"></i></a>
   </div>
@@ -37,10 +39,10 @@
           <th>AÇÃO</th>
         </tr>
       </thead>
-
+      
       <tbody id="tabela-produtos"></tbody>
     </table>
-
+        
     <a href="/front-end/pages/cadProd.html">
       <button class="novo">Cadastrar novo produto</button>
     </a>
@@ -53,33 +55,42 @@
 
 // 🔥 carregar produtos
 async function carregarProdutos(nome = "") {
-  let url = "http://localhost:3000/produtos";
+  try {
+    let url = "http://localhost:3000/produtos";
 
-  if (nome) {
-    url += `?nome=${nome}`;
+    if (nome) {
+      url += `?nome=${nome}`;
+    }
+
+    const res = await fetch(url);
+    const produtos = await res.json();
+
+    const tabela = document.getElementById("tabela-produtos");
+    tabela.innerHTML = "";
+
+    produtos.forEach(p => {
+      tabela.innerHTML += `
+        <tr>
+          <td>${p.id}</td>
+          <td>${p.nome}</td>
+          <td>R$ ${p.preco}</td>
+          <td>${p.estoque}</td>
+          <td>${p.categoria || "-"}</td>
+          <td>${p.descricao || "-"}</td>
+          <td>
+            <button class="botaoeditar" onclick="editar(${p.id})">Editar</button>
+            <button class="botaodeletar" onclick="deletar(${p.id})">Deletar</button>
+          </td>
+        </tr>
+      `;
+    });
+  } catch (error) {
+    Swal.fire({
+        icon: 'error',
+        title: 'Erro ao carregar',
+        text: 'Não foi possível carregar a lista de produtos.'
+    });
   }
-
-  const res = await fetch(url);
-  const produtos = await res.json();
-
-  const tabela = document.getElementById("tabela-produtos");
-  tabela.innerHTML = "";
-
-  produtos.forEach(p => {
-    tabela.innerHTML += `
-      <tr>
-        <td>${p.id}</td>
-        <td>${p.nome}</td>
-        <td>R$ ${p.preco}</td>
-        <td>${p.estoque}</td>
-        <td>${p.categoria || "-"}</td>
-        <td>${p.descricao || "-"}</td>
-        <td>
-          <button onclick="editar(${p.id})">Editar</button>
-        </td>
-      </tr>
-    `;
-  });
 }
 
 // 🔥 busca automática
@@ -90,6 +101,49 @@ document.getElementById("busca").addEventListener("input", (e) => {
 // 🔥 editar produto
 function editar(id) {
   window.location.href = `/front-end/pages/cadProd.html?id=${id}`;
+}
+
+// 🔥 deletar produto
+async function deletar(id) {
+  const result = await Swal.fire({
+    title: 'Deseja deletar este produto?',
+    text: 'Esta ação não pode ser desfeita.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sim, deletar',
+    cancelButtonText: 'Cancelar'
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    const res = await fetch(`http://localhost:3000/produtos/${id}`, {
+      method: 'DELETE'
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.erro || 'Erro ao deletar produto');
+    }
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Produto deletado!',
+      text: 'O produto foi removido com sucesso.',
+      timer: 1500,
+      showConfirmButton: false
+    }).then(() => {
+      carregarProdutos();
+    });
+
+  } catch (erro) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Erro ao deletar',
+      text: erro.message || 'Não foi possível deletar o produto.'
+    });
+  }
 }
 
 // INIT
