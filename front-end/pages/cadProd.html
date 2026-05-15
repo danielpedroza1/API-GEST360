@@ -28,7 +28,22 @@
         <input id="nome" type="text" placeholder="Nome do Produto">
         <input id="preco" type="number" placeholder="Preço">
         <input id="estoque" type="number" placeholder="Estoque">
-        <input id="categoria" type="text" placeholder="Categoria">
+        <div class="order-add-row">
+
+<select id="categoria">
+    <option value="">Escolha uma categoria</option>
+     <option value="eletronicos">Eletrônicos</option>
+        <option value="informatica">Informática</option>
+        <option value="roupas">Roupas</option>
+        <option value="calcados">Calçados</option>
+        <option value="acessorios">Acessórios</option>
+        <option value="moveis">Móveis</option>
+        <option value="beleza">Beleza</option>
+        <option value="esportes">Esportes</option>
+        <option value="esportes">Outros</option>
+</select>
+    
+</div>
       </div>
 
       <div class="right">
@@ -81,16 +96,25 @@ document.getElementById("salvar").addEventListener("click", async () => {
   const nome = document.getElementById("nome").value.trim();
   const preco = parseFloat(document.getElementById("preco").value);
   const estoque = parseInt(document.getElementById("estoque").value);
-  const categoria = document.getElementById("categoria").value.trim();
+
+  // 🔥 PEGANDO O SELECT
+  const categoria = document.getElementById("categoria").value;
+
   const descricao = document.getElementById("descricao").value.trim();
 
   // 🔥 validação
-  if (!nome || isNaN(preco) || isNaN(estoque)) {
+  if (
+    !nome ||
+    isNaN(preco) ||
+    isNaN(estoque) ||
+    !categoria
+  ) {
     Swal.fire({
-        icon: 'error',
-        title: 'Dados inválidos',
-        text: 'Preencha nome, preço e estoque corretamente.'
+      icon: "error",
+      title: "Dados inválidos",
+      text: "Preencha todos os campos corretamente."
     });
+
     return;
   }
 
@@ -108,6 +132,7 @@ document.getElementById("salvar").addEventListener("click", async () => {
 
     // 🔥 editar
     if (id) {
+
       res = await fetch(`http://localhost:3000/produtos/${id}`, {
         method: "PUT",
         headers: {
@@ -117,6 +142,7 @@ document.getElementById("salvar").addEventListener("click", async () => {
       });
 
     } else {
+
       // 🔥 criar
       res = await fetch("http://localhost:3000/produtos", {
         method: "POST",
@@ -125,35 +151,43 @@ document.getElementById("salvar").addEventListener("click", async () => {
         },
         body: JSON.stringify(body)
       });
+
     }
 
     const data = await res.json();
 
     if (res.ok) {
+
       Swal.fire({
-          icon: 'success',
-          title: 'Produto salvo!',
-          text: 'O produto foi cadastrado/atualizado com sucesso.',
-          timer: 2000,
-          showConfirmButton: false
+        icon: "success",
+        title: "Produto salvo!",
+        text: "O produto foi cadastrado/atualizado com sucesso.",
+        timer: 2000,
+        showConfirmButton: false
       }).then(() => {
+
         window.location.href = "/front-end/pages/listaProd.html";
+
       });
 
     } else {
+
       Swal.fire({
-          icon: 'error',
-          title: 'Erro ao salvar',
-          text: data.erro || "Erro ao salvar produto"
+        icon: "error",
+        title: "Erro ao salvar",
+        text: data.erro || "Erro ao salvar produto"
       });
+
     }
 
   } catch (erro) {
+
     Swal.fire({
-        icon: 'error',
-        title: 'Erro de conexão',
-        text: 'Não foi possível conectar ao servidor.'
+      icon: "error",
+      title: "Erro de conexão",
+      text: "Não foi possível conectar ao servidor."
     });
+
   }
 
 });

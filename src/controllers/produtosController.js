@@ -109,6 +109,18 @@ export const deletarProduto = async (req, res) => {
   try {
     const { id } = req.params;
 
+    // 🔥 Verificar se o produto está em uso em algum pedido
+    const [itensUsando] = await db.query(
+      "SELECT COUNT(*) as total FROM itens_pedido WHERE produto_id = ?",
+      [id]
+    );
+
+    if (itensUsando[0].total > 0) {
+      return res.status(400).json({ 
+        erro: "Não é possível deletar este produto pois ele está vinculado a um ou mais pedidos." 
+      });
+    }
+
     const [resultado] = await db.query(
       "DELETE FROM produtos WHERE id=?",
       [id]

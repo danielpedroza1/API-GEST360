@@ -116,3 +116,23 @@ textarea {
 a{
   color: white;
 }
+
+.order-add-row{
+    display: grid;
+    grid-template-columns: -1fr 50px;
+    gap: 10px;
+    align-items: center;
+    border-radius:8px;
+}
+
+#categoria{
+  color: #7c7b7b;
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 19px;
+    background-color: #cfcfcf;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+}
